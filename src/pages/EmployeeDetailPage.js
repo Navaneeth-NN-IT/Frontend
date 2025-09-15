@@ -27,18 +27,22 @@ function EmployeeDetailPage() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
+      // Fetch all required data in parallel for performance
       const [empRes, skillsRes, deptsRes, managersRes] = await Promise.all([
         employeeService.getEmployeeById(id),
         skillService.getAllSkills(),
         departmentService.getAllDepartments(),
-        employeeService.getAllEmployees()
+        employeeService.getAllEmployeesList() // <-- THIS IS THE FIX
       ]);
 
       setEmployee(empRes.data);
       setAllSkills(skillsRes.data);
       setAllDepartments(deptsRes.data);
+      
+      // Filter out the current employee from the list of potential managers
       setAllManagers(managersRes.data.filter(m => m.id !== empRes.data.id));
       
+      // Set initial form values for the dropdowns
       setSelectedDept(empRes.data.department?.id || '');
       setSelectedManager(empRes.data.manager?.id || '');
 
@@ -58,7 +62,7 @@ function EmployeeDetailPage() {
     try {
       await employeeService.assignSkillToEmployee(id, skillId);
       setShowModal(false);
-      fetchData();
+      fetchData(); // Refresh all data
     } catch (err) {
       setError("Failed to assign skill.");
     }
@@ -68,7 +72,7 @@ function EmployeeDetailPage() {
     if (window.confirm('Are you sure you want to remove this skill?')) {
       try {
         await employeeService.removeSkillFromEmployee(id, skillId);
-        fetchData();
+        fetchData(); // Refresh all data
       } catch (err) {
         setError("Failed to remove skill.");
       }
@@ -80,7 +84,7 @@ function EmployeeDetailPage() {
     try {
       await employeeService.updateEmployee(id, selectedDept || null, selectedManager || null);
       alert('Profile updated successfully!');
-      fetchData();
+      fetchData(); // Refresh all data
     } catch(err) {
       setError('Failed to update profile.');
     }

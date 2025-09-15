@@ -2,9 +2,10 @@ import api from './api';
 
 /**
  * Fetches a paginated and sorted list of employees from the backend.
+ * Used for the main employee directory on the admin dashboard.
  * @param {number} page - The page number to fetch (0-indexed).
  * @param {number} size - The number of items per page.
- * @param {string} sort - The sorting criteria (e.g., 'name,asc' or 'email,desc').
+ * @param {string} sort - The sorting criteria (e.g., 'name,asc').
  * @returns {Promise} An axios promise containing the Page object from the backend.
  */
 const getAllEmployees = (page = 0, size = 10, sort = 'name,asc') => {
@@ -15,6 +16,15 @@ const getAllEmployees = (page = 0, size = 10, sort = 'name,asc') => {
       sort,
     },
   });
+};
+
+/**
+ * Fetches a complete, non-paginated list of all employees.
+ * Used for populating selection dropdowns, like the manager list.
+ * @returns {Promise} An axios promise containing an array of all employees.
+ */
+const getAllEmployeesList = () => {
+  return api.get('/employees/list');
 };
 
 const getEmployeeById = (id) => {
@@ -47,6 +57,7 @@ const searchEmployeesByDepartment = (departmentId) => {
 
 const employeeService = {
   getAllEmployees,
+  getAllEmployeesList, // <-- Export the new function
   getEmployeeById,
   updateEmployee,
   assignSkillToEmployee,
